@@ -4,7 +4,7 @@ import SettingsStore from '@/store/SettingsStore'
 import { Text } from '@nextui-org/react'
 import { Fragment, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
-import { refreshSessionsList } from './wc'
+import { refreshSessionsList } from './realwc'
 
 export default function SessionsPage() {
   const { sessions } = useSnapshot(SettingsStore.state)

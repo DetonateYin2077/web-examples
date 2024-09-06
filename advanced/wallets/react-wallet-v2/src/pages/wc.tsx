@@ -1,63 +1,86 @@
-import { Text } from '@nextui-org/react'
-import { Fragment, useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import WalletConnectPage from './walletconnect'
-import ModalStore from '@/store/ModalStore'
-import { useSnapshot } from 'valtio'
-import SettingsStore from '@/store/SettingsStore'
-import { web3wallet } from '@/utils/WalletConnectUtil'
+// pages/base64params.js
+import { useEffect, useState } from 'react';
 
-export default function DeepLinkPairingPage() {
-  const state = useSnapshot(ModalStore.state)
-  const router = useRouter()
-  const [loadingMessage, setLoadingMessage] = useState<string>('')
-  const [requestTimeout, setRequestTimeout] = useState<NodeJS.Timeout | null>(null)
+const Base64ParamsPage = () => {
+  const [originalParams, setOriginalParams] = useState('');
+  const [encodedParams, setEncodedParams] = useState('');
+  const [decodedParams, setDecodedParams] = useState('');
+  const [startAppUrl, setStartAppUrl] = useState('');
 
-  const uri = router.query.uri as string
-  const requestId = router.query.requestId as string
-
-  const removeTimeout = useCallback(() => {
-    if (requestTimeout) {
-      clearTimeout(requestTimeout)
+  // Base64 编码和解码函数
+  const base64Encode = (str) => btoa(encodeURIComponent(str));
+  const base64Decode = (str) => {
+    try {
+      return decodeURIComponent(atob(str));
+    } catch (e) {
+      console.error('Invalid Base64 string:', e);
+      return '';
     }
-  }, [requestTimeout])
+  };
+
+  const hexEncode = (str) => {
+    return str
+      .split('')
+      .map((char) => char.charCodeAt(0).toString(16).padStart(2, '0'))
+      .join('');
+  };
+  
+  const hexDecode = (hexStr) => {
+    const hexArray = hexStr.match(/.{1,2}/g) || [];
+    return hexArray
+      .map((byte) => String.fromCharCode(parseInt(byte, 16)))
+      .join('');
+  };
 
   useEffect(() => {
-    if (state.view == 'LoadingModal') {
-      const timeout = setTimeout(() => {
-        setLoadingMessage('Your request is taking longer than usual. Feel free to try again.')
-      }, 15_000)
-      setRequestTimeout(timeout)
-    } else if (state.view) {
-      removeTimeout()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.view])
+    // 获取当前页面的完整URL
+    const currentUrl = new URL(window.location.href);
 
-  useEffect(() => {
-    if (requestId) {
-      ModalStore.open('LoadingModal', { loadingMessage })
-    }
+    // 获取 query 参数部分
+    const queryParams = currentUrl.searchParams.toString();
+    setOriginalParams(queryParams);
+    console.log('queryParams',queryParams)
 
-    if (uri) {
-      ModalStore.open('LoadingModal', { loadingMessage })
-    }
-  }, [uri, requestId, loadingMessage])
+    // 对 query 参数部分进行 Base64 编码
+    const encoded = hexEncode(queryParams);
+    setEncodedParams(encoded);
 
-  if (!uri && !requestId) {
-    return (
-      <Fragment>
-        <Text css={{ opacity: '0.5', textAlign: 'center', marginTop: '$20' }}>
-          No URI provided via `?uri=` params
-        </Text>
-      </Fragment>
-    )
-  }
+    // 对 query 参数部分进行 Base64 编码
+    const decode = hexDecode(encoded);
+    setDecodedParams(decode);
+    console.log('decode',decode)
 
-  return <WalletConnectPage deepLink={uri} />
-}
+    // 构建拼接后的 startapp URL
+    const telegramUrl = `https://t.me/devin2077_bot/tgw_wc?startapp=${encoded}`;
+    setStartAppUrl(telegramUrl);
+  }, []); // 依赖为空数组，意味着只在初次渲染时运行一次
 
-export function refreshSessionsList() {
-  if (!web3wallet) return
-  SettingsStore.setSessions(Object.values(web3wallet.getActiveSessions()))
-}
+  return (
+    <div>
+      <h1>Base64 Encoder for URL Params with Telegram Redirect</h1>
+      <p>
+        <strong>Original Params:</strong> {originalParams}
+      </p>
+      <p>
+        <strong>Base64 Encoded Params:</strong> {encodedParams}
+      </p>
+      <p>
+        <strong>Base64 Decoded Params:</strong> {decodedParams}
+      </p>
+      <p>
+        <strong>Telegram URL with Encoded Params:</strong>{' '}
+        <a href={startAppUrl} target="_blank" rel="noopener noreferrer">
+          {startAppUrl}
+        </a>
+      </p>
+      <button
+        onClick={() => window.open(startAppUrl, '_blank')}
+        style={{ padding: '10px 20px', marginTop: '20px' }}
+      >
+        Open in Telegram
+      </button>
+    </div>
+  );
+};
+
+export default Base64ParamsPage;
