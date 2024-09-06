@@ -9,7 +9,7 @@ import useWalletConnectEventsManager from '@/hooks/useWalletConnectEventsManager
 import { web3wallet } from '@/utils/WalletConnectUtil'
 import { RELAYER_EVENTS } from '@walletconnect/core'
 import { AppProps } from 'next/app'
-import './main.css'
+// import './main.css'
 import { styledToast } from '@/utils/HelperUtil'
 
 export default function App({ Component, pageProps }: AppProps) {
