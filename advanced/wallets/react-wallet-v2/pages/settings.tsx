@@ -10,7 +10,7 @@ import { kadenaWallets } from '@/utils/KadenaWalletUtil'
 import { Card, Col, Divider, Row, Switch, Text } from '@nextui-org/react'
 import { Fragment } from 'react'
 import { useSnapshot } from 'valtio'
-import packageJSON from '../../package.json'
+// import packageJSON from '../../package.json'
 import { tezosWallets } from '@/utils/TezosWalletUtil'
 
 export default function SettingsPage() {
@@ -40,7 +40,7 @@ export default function SettingsPage() {
       </Text>
       <Row justify="space-between" align="center">
         <Text color="$gray400">@walletconnect/web3wallet</Text>
-        <Text color="$gray400">{packageJSON.dependencies['@walletconnect/web3wallet']}</Text>
+        {/* <Text color="$gray400">{packageJSON.dependencies['@walletconnect/web3wallet']}</Text> */}
       </Row>
 
       <Divider y={2} />
